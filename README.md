@@ -18,7 +18,7 @@ sudo yum install -y ansible wget nano
 ```
 - Get the playbook
 ```sh
-wget https://xxxxx
+wget https://github.com/javexed/awx-bootstrap/blob/master/playbook.yml
 ```
 - Run the playbook
 ```sh
