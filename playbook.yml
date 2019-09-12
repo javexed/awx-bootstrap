@@ -1,0 +1,75 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  vars:
+    install_location: '/srv/docker'
+  tasks:
+    - name: Install epel
+      package:
+        name: epel-release, yum-utils
+        state: present
+    - name: Install packages needed for git and prerequisites for docker
+      package:
+        name: ansible, git, wget, nano, device-mapper-persistent-data, lvm2, python-pip
+        state: present
+    - name: Install python docker compose package
+      pip:
+        name: docker-compose
+    - name: Add Docker CE repo
+      yum_repository:
+        name: docker-ce
+        description: Docker CE repo
+        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+        gpgkey: https://download.docker.com/linux/centos/gpg
+        gpgcheck: yes
+    - name: Install Docker CE
+      package:
+        name: docker, docker-compose
+        state: present
+    - name: Start and enable the docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Create a directory if it does not exist
+      file:
+        path: "{{ install_location }}"
+        state: directory
+    - name: Clone the AWX repo
+      git:
+        repo: 'https://github.com/ansible/awx.git'
+        dest: "{{ install_location }}/awx"
+        force: yes
+    - name: Clone the AWX logos repo
+      git:
+        repo: 'https://github.com/ansible/awx-logos.git'
+        dest: "{{ install_location }}/awx/awx-logos"
+    - name: Ensure postgres volume is set
+      ini_file:
+        path: "{{ install_location }}/awx/installer/inventory"
+        option: postgres_data_dir
+        value: '/var/lib/pgdocker'
+        section: 'all:vars'
+    - name: Ensure AWX is set to official
+      ini_file:
+        path: "{{ install_location }}/awx/installer/inventory"
+        option: awx_official
+        value: true
+        section: 'all:vars'
+    - name: Ensure alternate DNS settings are set
+      ini_file:
+        path: "{{ install_location }}/awx/installer/inventory"
+        option: awx_alternate_dns_servers
+        value: '4.2.2.1,4.2.2.2'
+        section: 'all:vars'
+    - name: Set Project Data Directory
+      ini_file:
+        path: "{{ install_location }}/awx/installer/inventory"
+        option: project_data_dir
+        value: '/var/lib/awx/projects'
+        section: 'all:vars'
+    - name: Put SELinux in permissive mode, logging actions that would be blocked.
+      selinux:
+        policy: targeted
+        state: permissive

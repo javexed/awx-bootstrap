@@ -1,0 +1,28 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  tasks:
+  - name: upgrade all packages
+    yum:
+      name: '*'
+      state: latest
+  - name: Install cockpit
+    yum:
+      name: cockpit
+      state: latest
+  - name: Start and enable the cockpit service
+    service:
+      name: cockpit
+      state: started
+      enabled: yes
+  - name: Add cockpit to the firewall
+    firewalld:
+      service: cockpit
+      zone: public
+      permanent: yes
+      state: enabled
+  - name: Reload service firewalld, in all cases
+    service:
+      name: firewalld
+      state: reloaded
