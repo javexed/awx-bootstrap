@@ -6,8 +6,8 @@ Yes I realize this seems an odd thing to do, but there were a number of steps to
 The goal of this playbook is to set up a CentOS 7 system so that it is ready for the AWX installer.
 
 ## References used in building this playbook and documentation
-1. https://www.howtoforge.com/tutorial/centos-ansible-awx-installation/
-2. https://docs.docker.com/install/linux/docker-ce/fedora/
+1. https://www.howtoforge.com/tutorial/how-to-install-ansible-awx-with-docker-on-centos/
+2. https://docs.docker.com/install/linux/docker-ce/centos/
 3. https://cockpit-project.org/running#centos
 
 ## Prerequisites:
@@ -24,6 +24,10 @@ wget https://github.com/javexed/awx-bootstrap/blob/master/playbook.yml
 ```sh
 ansible-playbook playbook.yml -vv --ask-become-pass
 ```
+---
+**NOTE**: I realize that disabling SELinux isn't kosher, but had issues with access to the postgres container. Suggestions to fix are welcome.
+
+---
 - Enter your password
 - Next, run the ansible installer
 ```sh

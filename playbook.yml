@@ -3,7 +3,7 @@
   connection: local
   become: yes
   vars:
-    install_location: '/srv/docker'
+    install_location: '/var/lib'
   tasks:
     - name: Install epel
       package:
@@ -39,36 +39,33 @@
     - name: Clone the AWX repo
       git:
         repo: 'https://github.com/ansible/awx.git'
-        dest: "{{ install_location }}/awx"
+        dest: "{{ install_location }}/awx_installer"
         force: yes
     - name: Clone the AWX logos repo
       git:
         repo: 'https://github.com/ansible/awx-logos.git'
-        dest: "{{ install_location }}/awx/awx-logos"
+        dest: "{{ install_location }}/awx_installer/awx-logos"
     - name: Ensure postgres volume is set
       ini_file:
-        path: "{{ install_location }}/awx/installer/inventory"
+        path: "{{ install_location }}/awx_installer/installer/inventory"
         option: postgres_data_dir
-        value: '/var/lib/pgdocker'
+        value: '{{ install_location }}/pgdocker'
         section: 'all:vars'
+        no_extra_spaces: yes
     - name: Ensure AWX is set to official
       ini_file:
-        path: "{{ install_location }}/awx/installer/inventory"
+        path: "{{ install_location }}/awx_installer/installer/inventory"
         option: awx_official
         value: true
         section: 'all:vars'
-    - name: Ensure alternate DNS settings are set
+        no_extra_spaces: yes
+    - name: Set Project Docker Compose Directory
       ini_file:
-        path: "{{ install_location }}/awx/installer/inventory"
-        option: awx_alternate_dns_servers
-        value: '4.2.2.1,4.2.2.2'
+        path: "{{ install_location }}/awx_installer/installer/inventory"
+        option: docker_compose_dir
+        value: '{{ install_location }}/awx'
         section: 'all:vars'
-    - name: Set Project Data Directory
-      ini_file:
-        path: "{{ install_location }}/awx/installer/inventory"
-        option: project_data_dir
-        value: '/var/lib/awx/projects'
-        section: 'all:vars'
+        no_extra_spaces: yes
     - name: Put SELinux in permissive mode, logging actions that would be blocked.
       selinux:
         policy: targeted
