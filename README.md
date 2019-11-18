@@ -31,7 +31,7 @@ ansible-playbook playbook.yml -vv --ask-become-pass
 - Enter your password
 - Next, run the ansible installer
 ```sh
-cd /srv/docker/awx/installer
+cd /var/lib/awx_installer/installer
 sudo ansible-playbook -i inventory install.yml -vv
 ```
 # Licence
